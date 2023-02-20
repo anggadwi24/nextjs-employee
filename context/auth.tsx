@@ -82,7 +82,7 @@ export const ProtectRoute = ({ children  } : {children : any}) => {
     const routers = useRouter();
     const { isAuthenticated , isLoading } : any  = useAuth();
     if (isLoading || (!isAuthenticated )){
-        
+       
        return <LoadingScreen/>
     }else{
         return children;

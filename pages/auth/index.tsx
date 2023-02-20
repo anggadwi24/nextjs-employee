@@ -1,9 +1,12 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { setCookie} from 'cookies-next';
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/auth";
+import Main from "@/pages/index";
+import LoadingScreen from "@/components/LoadingScreen";
+
 
 const Auth = () => {
   const router = useRouter();
@@ -14,7 +17,9 @@ const Auth = () => {
   const [message,setMessage] = useState([]);
   const { user } = useAuth();
   const { loadings } = useAuth();
- 
+  
+
+
   const authHandle = (event: any) => {
     event.preventDefault();
     setLoading(true);
@@ -25,6 +30,9 @@ const Auth = () => {
         setCookie('token', res.data.data.token)
         setLoading(false);
         router.push('/');
+        router.reload();
+       
+        
     })
     .catch(function (error) {
       if(error.response.status){
@@ -35,8 +43,9 @@ const Auth = () => {
     })
     setLoading(false);
   };
+ 
   if(user){
-   router.push('/');
+    router.push('/');
   }
   return (
     <>

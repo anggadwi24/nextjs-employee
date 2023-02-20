@@ -1,11 +1,13 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { useAuth } from '../context/auth';
 import Login from '../pages/auth';
 
 export default function LoadingScreen(){
-
+    const router = useRouter();
     const { user, loading } = useAuth();
-
+    
     if(loading){
         return (
             <>
@@ -24,10 +26,9 @@ export default function LoadingScreen(){
            
         )
     }else{
-        return <>
-             
-                <Login></Login>
-        </>
+        router.push('/auth');
+        return <Login></Login>
+       
     }
    
 }

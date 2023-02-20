@@ -13,8 +13,8 @@ const Sidebar = (props: Props) => {
       <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
         <ul className="space-y-2">
           <li>
-            <a
-              href="#"
+            <Link
+              href="/"
               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <svg
@@ -28,7 +28,7 @@ const Sidebar = (props: Props) => {
                 <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
               </svg>
               <span className="hidden md:block ml-0 md:ml-3">Dashboard</span>
-            </a>
+            </Link>
           </li>
           <li>
             <Link
