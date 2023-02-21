@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import api from "@/lib/api";
 import { setCookie,getCookie,deleteCookie } from 'cookies-next';
 import LoadingScreen from '@/components/LoadingScreen';
+import Auth from '@/pages/auth';
 
 const AuthContext = createContext({});
 
@@ -16,9 +17,9 @@ export const AuthProvider = ({ children} : {children:any}) => {
     useEffect(() => {
         async function loadUserFromCookies() {
             const token = getCookie('token')
-
+           
             if (token) {
-
+              
                 api.defaults.headers.Authorization = `Bearer ${token}`
                 const { data: user } = await api.get('/my')
                
@@ -78,13 +79,20 @@ export const AuthProvider = ({ children} : {children:any}) => {
     )
 }
 export const useAuth = () => useContext(AuthContext)
-export const ProtectRoute = ({ children  } : {children : any}) => {
+export const ProtectRoute = ({ children  } : any) => {
     const routers = useRouter();
+   
     const { isAuthenticated , isLoading } : any  = useAuth();
+    
     if (isLoading || (!isAuthenticated )){
-       
-       return <LoadingScreen/>
+       if(routers.pathname !== '/auth'){
+        return <LoadingScreen/>
+
+       }else{
+        return <Auth></Auth>
+       }
     }else{
+      
         return children;
 
     }

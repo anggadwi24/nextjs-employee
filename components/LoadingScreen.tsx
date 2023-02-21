@@ -12,7 +12,7 @@ export default function LoadingScreen(){
         return (
             <>
                 <Head>
-                    <title>Login - Employee Management</title>
+                    <title>Employee Management</title>
                 </Head>
                 <div className="relative">
                     <div className="absolute inset-0 h-screen flex">
@@ -25,10 +25,10 @@ export default function LoadingScreen(){
             </>
            
         )
-    }else{
+    }
+
+    if(!user){
         router.push('/auth');
-        return <Login></Login>
-       
     }
    
 }

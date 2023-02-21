@@ -9,9 +9,9 @@ if(errors)
   return (
     <>
         {errors && errors.length > 0 &&
-            errors.map( (value) => {
+            errors.map( (value,index) => {
                 return  (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">{value}.</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-500" key={index}>{value}.</p>
                 )
             })
         }
