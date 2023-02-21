@@ -44,7 +44,11 @@ const Index = (props: Props) => {
 
     useEffect(() => {
 
-        router.push({ pathname: '/employee', query: { page } })
+      
+        const setPage = () =>{
+            router.push({ pathname: '/employee', query: { page } })
+          }
+          setPage();
     }, [page])
 
     const breadcrumb = [{ name: "Employee", url: "/employee" }];

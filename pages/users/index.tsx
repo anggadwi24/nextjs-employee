@@ -43,9 +43,12 @@ const Index = (props: Props) => {
   }
 
   useEffect(() => {
-
-    router.push({ pathname: '/users', query: { page } })
-  }, [page])
+     const setPage = () =>{
+      router.push({ pathname: '/users', query: { page } })
+    }
+    setPage();
+    
+  },[page])
 
   const breadcrumb = [{ name: "User", url: "/users" }];
 
@@ -126,12 +129,12 @@ const Index = (props: Props) => {
           </table>
           <div className="flex justify-end mt-5 mr-4">
           {datas && datas.prev_page_url &&
-                            <Link href="" onClick={ () => setPage(page-1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <Link href={`/users`} onClick={ () => setPage(page-1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 Previous
                             </Link>
                         }
                         {datas && datas.next_page_url &&
-                            <Link href="" onClick={ () => setPage(page+1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <Link href={`/users`} onClick={ () => setPage(page+1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 Next
                             </Link>
                         }

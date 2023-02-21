@@ -4,13 +4,14 @@ type Props = {
   disabled:boolean,
   onChange: (e: any) => void
   className:string,
-  type : "text" | "number" | "date" | "password",
+  type : "text" | "number" | "date",
   placeholder : string,
-  value:any,
+  value:string,
+  max:any,
 
 }
 
-const Index = ({disabled,className,type,placeholder,onChange,value}: Props) => {
+const Date = ({disabled,className,type,placeholder,onChange,value,max}: Props) => {
   return (
     <input
     disabled={disabled}
@@ -19,9 +20,10 @@ const Index = ({disabled,className,type,placeholder,onChange,value}: Props) => {
     placeholder={placeholder}
     onChange={onChange}
     value={value}
+    max={max}
     
 />
   )
 }
 
-export default Index
+export default Date

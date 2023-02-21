@@ -15,8 +15,8 @@ const Auth = () => {
   const [loading,setLoading] = useState(false);
   const [error, setErrors] = useState(null);
   const [message,setMessage] = useState([]);
-  const { user } = useAuth();
-  const { loadings } = useAuth();
+  const { user } : any = useAuth();
+  const { loadings } : any = useAuth();
   
 
 

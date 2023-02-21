@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import { getCookie } from 'cookies-next';
 import axios from 'axios';
@@ -6,17 +6,24 @@ import useSWR, { mutate } from "swr";
 import api from '@/lib/api';
 import Main from '@/components/Layouts/Main';
 import Input from '@/components/Input';
+import InputDate from '@/components/Input/date';
 import Textarea from '@/components/Input/textarea';
 import Label from '@/components/Label';
 import Error from '@/components/Label/error';
 import Select from '@/components/Select';
+import { useAuth } from '@/context/auth';
+import { useRouter } from 'next/router';
+import LoadingScreen from '@/components/LoadingScreen';
 type Props = {
-    user: any
+    
 }
 const token = getCookie('token');
-const fetcher = (url: any) => axios.get(url, { headers: { Authorization: "Bearer " + token } }).then(res => res.data)
-const Profile = ({ user }: Props) => {
 
+const fetcher = (url: any) => axios.get(url, { headers: { Authorization: "Bearer " + token } }).then(res => res.data)
+const Profile = (props: Props) => {
+    const {user} : any = useAuth();
+    const { data:users, error:errox, mutate } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`], fetcher);
+    
     const breadcrumb = [{ name: "Profile", url: "/profile" }];
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
@@ -24,7 +31,44 @@ const Profile = ({ user }: Props) => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [success, setSuccess] = useState('');
-    const [error, setError] = useState([]);
+    const [error, setError] = useState<any>([]);
+    const [nip, setNIP] = useState('');
+    const [fullname, setFullname] = useState('');
+    const [gender, setGender] = useState('');
+    const [phone, setPhone] = useState('');
+    const [pob, setPOB] = useState('');
+    const [dob, setDOB] = useState('');
+    const [address, setAddress] = useState('');
+    const [message1, setMessage1] = useState('');
+    const [success1, setSuccess1] = useState('');
+    const [loading1,setLoading1] = useState(false);
+    useEffect( ()=>{
+        const fetchData = () =>{
+            api.defaults.headers.Authorization = `Bearer ${token}`
+            api
+              .get(`/profile`)
+              .then((res) => {
+                if(user.role === 'employee')
+                setNIP(res.data.data.nip)
+                setFullname(res.data.data.fullname)
+                setGender(res.data.data.gender)
+                setPhone(res.data.data.phone)
+                setPOB(res.data.data.pob)
+                setDOB(res.data.data.dob)
+                setAddress(res.data.data.address)
+                
+              })
+              .catch(err => {
+                if (err.response.status) {
+        
+                  setError(err.response.data.data.error);
+        
+                }
+                setLoading(false)
+              })
+        }
+        fetchData();
+    },[])
     const submitHandle = (event: any) => {
         event.preventDefault();
 
@@ -47,6 +91,36 @@ const Profile = ({ user }: Props) => {
                     setMessage(err.response.data.message);
                 }
                 setLoading(false)
+            })
+    }
+  
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - 17);
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const biodataHandle = (event : any) => {
+        event.preventDefault();
+        const data = {nip, fullname, gender, phone, pob, dob, address };
+        setLoading1(true);
+        api.defaults.headers.Authorization = `Bearer ${token}`
+        api
+            .post(`/biodata`, data)
+            .then((res) => {
+
+                setLoading1(false)
+                setMessage1('');
+                setSuccess1(res.data.message)
+                setError([]);
+
+
+
+            })
+            .catch(err => {
+                if (err.response.status) {
+                    setError(err.response.data.data);
+                    setMessage1(err.response.data.message);
+                    setSuccess1('');
+                }
+                setLoading1(false)
             })
     }
     if (user.role === 'admin') {
@@ -100,47 +174,9 @@ const Profile = ({ user }: Props) => {
                 </form>
             </Main>
         )
-    } else {
+    } else if(user.role === 'employee') {
 
-        const [nip, setNIP] = useState(user.nip);
-        const [fullname, setFullname] = useState(user.fullname);
-        const [gender, setGender] = useState(user.gender);
-        const [phone, setPhone] = useState(user.phone);
-        const [pob, setPOB] = useState(user.pob);
-        const [dob, setDOB] = useState(user.dob);
-        const [address, setAddress] = useState(user.address);
-        const [message1, setMessage1] = useState('');
-        const [success1, setSuccess1] = useState('');
-        const [loading1,setLoading1] = useState(false);
-        const date = new Date();
-        date.setFullYear(date.getFullYear() - 17);
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const biodataHandle = (event : any) => {
-            event.preventDefault();
-            const data = {nip, fullname, gender, phone, pob, dob, address };
-            setLoading1(true);
-            api.defaults.headers.Authorization = `Bearer ${token}`
-            api
-                .post(`/biodata`, data)
-                .then((res) => {
-    
-                    setLoading1(false)
-                    setMessage1('');
-                    setSuccess1(res.data.message)
-                    setError([]);
-    
-    
-    
-                })
-                .catch(err => {
-                    if (err.response.status) {
-                        setError(err.response.data.data);
-                        setMessage1(err.response.data.message);
-                        setSuccess1('');
-                    }
-                    setLoading1(false)
-                })
-        }
+       
         return (
             <Main title={"Profile"} breadcrumb={breadcrumb} page={"Profile"}>
                 <div className="relative flex ">
@@ -179,11 +215,11 @@ const Profile = ({ user }: Props) => {
                                 </div>
                                 <div>
                                     <Label className=''>Gender</Label>
-                                    <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setGender(e.target.value)} value={gender} >
-                                        <option value="">Select gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                    </Select>
+                                    <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setGender(e.target.value)} value={gender} 
+                                        options={[{value:'male',text:'Male'},{value:'female',text:'Female'}]}
+                                    />
+                                        
+                                    
                                     <Error errors={error && error.gender ? error.gender : []} />
                                 </div>
                                 <div>
@@ -193,7 +229,7 @@ const Profile = ({ user }: Props) => {
                                 </div>
                                 <div>
                                     <Label className=''>Date of Birth</Label>
-                                    <Input disabled={loading ? true : false} max={date.getFullYear() + '-' + month + '-' + date.getDate()} type="date" placeholder={"Insert Date of Birth"} className={error && error.dob ? `bg-red-50 border-red-500 text-red-800` : ``} value={dob} onChange={(e) => setDOB(e.target.value)} />
+                                    <InputDate disabled={loading ? true : false} max={date.getFullYear() + '-' + month + '-' + date.getDate()} type="date" placeholder={"Insert Date of Birth"} className={error && error.dob ? `bg-red-50 border-red-500 text-red-800` : ``} value={dob} onChange={(e) => setDOB(e.target.value)} />
                                     <Error errors={error && error.dob ? error.dob : []} />
                                 </div>
 
@@ -285,27 +321,6 @@ const Profile = ({ user }: Props) => {
 
 export default Profile
 
-export const getServerSideProps = async ({req,res} : {req:any,res:any}) => {
-    const token = req.cookies.token;
 
-    api.defaults.headers.Authorization = `Bearer ${token}`
-
-
-
-    const data = await api.get(`/profile`)
-    
-    
-    if(!data){
-        return {
-            redirect:'/auth',
-        }
-    }
-    return {
-        props: {
-            user: data.data.data
-        },
-      
-    }
    
 
-}

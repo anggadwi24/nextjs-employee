@@ -23,10 +23,6 @@ const Detail = ({ employee }: Props) => {
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     
-    
-
-    console.log(page);
-
     const breadcrumb = [{ name: "Employee", url: "/employee" }, { name: 'Leave Balance', url: `/employee/balance/${email}` }];
     const { data: data, error: errors, mutate } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/balance/employee/${email}?page=${page}`], fetcher);
     const balance = data ? data.data.data : null;
@@ -56,9 +52,13 @@ const Detail = ({ employee }: Props) => {
 
     }
     useEffect(() => {
-
-        router.push({ pathname: `/employee/balance/${email}`, query: { page } })
-    }, [page])
+        const setPage = () =>{
+           
+            router.push({ pathname: `/employee/balance/${email}`, query: { page } })
+          }
+          setPage();
+       
+    }, [page,email])
     return (
         <Main title={"Leave Balance"} breadcrumb={breadcrumb} page={"Leave Balance"}>
             <div className='flex justify-end mx-4 mb-4'>
@@ -150,13 +150,13 @@ const Detail = ({ employee }: Props) => {
                                         <td className="px-6 py-4 flex justify-start">
                                             {!value.isApprove &&
                                                 <>
-                                                    <Link href={``} onClick={() => handleSubmission(value.id, 'approve')} className="text-sm" title="Approve Submission">
+                                                    <Link href={`/employee/balance/${email}`} onClick={() => handleSubmission(value.id, 'approve')} className="text-sm" title="Approve Submission">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-3">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                                         </svg>
 
                                                     </Link>
-                                                    <Link href={``} onClick={() => handleSubmission(value.id, 'disapprove')} className="text-sm" title="Disapprove Submission">
+                                                    <Link href={`/employee/balance/${email}`} onClick={() => handleSubmission(value.id, 'disapprove')} className="text-sm" title="Disapprove Submission">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-3">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                         </svg>
@@ -167,12 +167,7 @@ const Detail = ({ employee }: Props) => {
 
 
                                             }
-                                            <Link href={`/balance/${value.id}`} className="text-sm" title="Detail Leave Balance">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                            </Link>
+                                          
 
 
                                         </td>
@@ -185,13 +180,13 @@ const Detail = ({ employee }: Props) => {
                     </table>
                     <div className="flex justify-end mt-5 mr-4">
                         {datas && datas.prev_page_url &&
-                            <Link href="" onClick={ () => setPage(page-1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <Link href={`/employee/balance/${email}`} onClick={ () => setPage(page-1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 Previous
                             </Link>
                         }
                         {datas && datas.next_page_url &&
                             
-                            <Link href=""  onClick={ () => setPage(page+1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <Link href={`/employee/balance/${email}`}  onClick={ () => setPage(page+1)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                                 Next
                             </Link>
                         }
@@ -215,7 +210,7 @@ const Detail = ({ employee }: Props) => {
 export default Detail
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const token = context.req.cookies.token;
-    const email = context.params.email;
+    const email = context.query.email;
     api.defaults.headers.Authorization = `Bearer ${token}`
 
 

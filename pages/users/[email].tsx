@@ -25,7 +25,7 @@ const Edit = ({user}: Props) => {
   const token = getCookie('token');
   const [message,setMessage] = useState('');
   const [success,setSuccess] = useState('');
-  const [error,setError] = useState([]); 
+  const [error,setError] = useState<any>([]); 
   const submitHandle = (event : any) => {
     event.preventDefault();
     
@@ -77,10 +77,11 @@ const Edit = ({user}: Props) => {
                     </div>
                     <div>
                         <Label className=''>Role</Label>
-                        <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setRole(e.target.value)} value={role} >
-                            <option value="employee">Employee</option>
-                            <option value="admin">Admin</option>
-                        </Select>
+                        <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setRole(e.target.value)} value={role} 
+                          options={[{value:'employee',text:'Employee'},{value:'admin',text:'Admin'}]}
+                        />
+                           
+                        
                         <Error errors={error && error.role ? error.role : []}/>
                     </div>
                     <div>
@@ -111,7 +112,7 @@ export default Edit
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const token = context.req.cookies.token;
-  const email = context.params.email;
+  const email = context.query.email;
   api.defaults.headers.Authorization = `Bearer ${token}`
   
   

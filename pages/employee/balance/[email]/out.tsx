@@ -27,7 +27,7 @@ const Out = ({ employee }: Props) => {
   const [error, setError] = useState('');
   const [balances, setBalance] = useState(0);
   const [show,setShow] = useState(employee.balance);
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState<any>();
   const breadcrumb = [{ name: "Employee", url: "/employee" }, { name: 'Leave Balance', url: `/employee/balance/${email}` }, { name: 'In', url: `/employee/balance/${email}/in` }];
 
   const submitHandle = (event: any) => {
@@ -49,7 +49,13 @@ const Out = ({ employee }: Props) => {
       })
       .catch(err => {
         if (err.response.status) {
+          if(err.response.data.data.balance){
+          setError(err.response.data.data.balance);
+
+          }else{
           setError(err.response.data.data.error);
+
+          }
           setSuccess('');
           setMessage(err.response.data.data);
         
@@ -151,7 +157,7 @@ const Out = ({ employee }: Props) => {
 export default Out
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const token = context.req.cookies.token;
-  const email = context.params.email;
+  const email = context.query.email;
   api.defaults.headers.Authorization = `Bearer ${token}`
 
 

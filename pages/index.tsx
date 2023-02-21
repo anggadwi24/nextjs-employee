@@ -14,6 +14,7 @@ import Link from 'next/link';
 import Label from '@/components/Label';
 import Input from '@/components/Input';
 import Error from '@/components/Label/error';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const inter = Inter({ subsets: ['latin'] })
 const token = getCookie('token');
@@ -21,41 +22,100 @@ const fetcher = (url: any) => axios.get(url, { headers: { Authorization: "Bearer
 
 export default function Home() {
   let breadcrumb: any;
-  const { user } = useAuth();
-  if (user && user.role === 'admin') {
-    const { data: employee, error: errorsx } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/employee/dropdown`], fetcher);
-    const { data: users, error: errorsxx } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/dropdown`], fetcher);
-    const { data, error, mutate } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/balance?isApprove=null`], fetcher);
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(null);
-    const [errors, setError] = useState([]);
-    const balance = data ? data.data.data : null;
-    const datas = data ? data.data : null;
+  const { user } : any = useAuth();
+  
+  const router = useRouter();
+  let getPage = router.query?.page || 1
+  const [page, setPage] = useState<number>(+getPage);
+  const { data: profile, error: errorsx } = useSWR(user && user.role == 'employee' ?  [`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`] : null, fetcher);
+  const { data, error: errorsxz, mutate } = useSWR(user && user.role == 'employee' ? [`${process.env.NEXT_PUBLIC_BACKEND_URL}/history?page=${page}`] : [`${process.env.NEXT_PUBLIC_BACKEND_URL}/balance?isApprove=null`], fetcher);
 
-    const handleSubmission = (id: any, status: any) => {
-      api.defaults.headers.Authorization = `Bearer ${token}`
-      api
-        .post(`/balance/submission/${id}/${status}`)
-        .then((res) => {
+  const { data: employee, error: errorsx1 } = useSWR(user && user.role == 'admin' ? [`${process.env.NEXT_PUBLIC_BACKEND_URL}/employee/dropdown`] : null, fetcher);
+  const { data: users, error: errorsxx } = useSWR(user && user.role == 'admin' ? [`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/dropdown`] : null,  fetcher);
 
-          setLoading(false)
+  const [loading, setLoading] = useState(false);
 
-          setSuccess(res.data.message)
-          mutate(data);
-
+  const balance = data ? data.data.data : null;
+  const datas = data ? data.data : null;
+  const [balances, setBalance] = useState(0);
+  const [message, setMessage] = useState<any>([]);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<any>([]);
 
 
+  const submitHandle = (event: any) => {
+    event.preventDefault();
+    api.defaults.headers.Authorization = `Bearer ${token}`
+    api
+      .post(`/submission`, { balance: balances })
+      .then((res) => {
 
-        })
-        .catch(err => {
-          if (err.response.status) {
-            setError(err.response.data.data);
+        setLoading(false)
+        setBalance(0);
+        setSuccess(res.data.message)
 
-          }
-          setLoading(false)
-        })
+        setErrors([]);
 
+
+
+
+      })
+      .catch(err => {
+        if (err.response.status) {
+          setErrors(err.response.data.data.error);
+          setSuccess('');
+          setMessage(err.response.data.data);
+
+
+        }
+        setLoading(false)
+      })
+  }
+  useEffect(() => {
+
+    const setPage = () =>{
+      if(user.role === 'employee'){
+        router.push({ pathname: '/', query: { page } })
+      }
     }
+    setPage();
+  }, [page])
+   
+
+
+  const handleSubmission = (id: any, status: any) => {
+    api.defaults.headers.Authorization = `Bearer ${token}`
+    api
+      .post(`/balance/submission/${id}/${status}`)
+      .then((res) => {
+
+        setLoading(false)
+
+        setSuccess(res.data.message)
+        mutate(data);
+
+
+
+
+      })
+      .catch(err => {
+        if (err.response.status) {
+          setError(err.response.data.data);
+
+        }
+        setLoading(false)
+      })
+
+  }
+  if(!user) {
+    return (
+      <Main title={'Dashboard'} breadcrumb={breadcrumb} page={'Dashboard'}>
+        </Main>
+    )
+  }
+  if (user && user.role === 'admin') {
+   
     return (
       <>
         <Main title={'Dashboard'} breadcrumb={breadcrumb} page={'Dashboard'}>
@@ -73,9 +133,9 @@ export default function Home() {
 
           <div className="relative overflow-x-auto mt-4">
             <h3 className='text-xl font-medium my-2'>Leave Balance Waiting</h3>
-            {errors && errors.length > 0 &&
+            {error && error.length > 0 &&
               <div className="mt-4 p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-                <span className="font-medium">Warning!</span> {errors[0]}
+                <span className="font-medium">Warning!</span> {error[0]}
               </div>
             }
             {success &&
@@ -174,54 +234,8 @@ export default function Home() {
         </Main>
       </>
     )
-  } else {
-    const router = useRouter();
-    let getPage = router.query?.page || 1
-    const [page, setPage] = useState<number>(+getPage);
-    const { data: profile, error: errorsx } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`], fetcher);
-    const { data, error: errorsxz, mutate } = useSWR([`${process.env.NEXT_PUBLIC_BACKEND_URL}/history?page=${page}`], fetcher);
-    const [loading, setLoading] = useState(false);
+  } else if(user && user.role === 'employee') {
 
-    const balance = data ? data.data.data : null;
-    const datas = data ? data.data : null;
-    const [balances, setBalance] = useState(0);
-    const [message, setMessage] = useState([]);
-    const [success, setSuccess] = useState('');
-    const [error, setError] = useState('');
-
-
-    const submitHandle = (event: any) => {
-      event.preventDefault();
-      api.defaults.headers.Authorization = `Bearer ${token}`
-      api
-        .post(`/submission`, { balance: balances })
-        .then((res) => {
-
-          setLoading(false)
-          setBalance(0);
-          setSuccess(res.data.message)
-
-          setError('');
-
-
-
-
-        })
-        .catch(err => {
-          if (err.response.status) {
-            setError(err.response.data.data.error);
-            setSuccess('');
-            setMessage(err.response.data.data);
-
-
-          }
-          setLoading(false)
-        })
-    }
-    useEffect(() => {
-
-      router.push({ pathname: '/', query: { page } })
-    }, [page])
 
     return (
       <Main title={'Dashboard'} breadcrumb={breadcrumb} page={'Dashboard'}>

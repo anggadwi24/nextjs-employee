@@ -1,15 +1,16 @@
+import { useAuth } from '@/context/auth';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useAuth } from '../context/auth';
-import Login from '../pages/auth';
+import React from 'react'
 
-export default function LoadingScreen(){
+type Props = {}
+
+const LoadingScreen = (props: Props) => {
     const router = useRouter();
-    const { user, loading } = useAuth();
+    const { user, loading } : any = useAuth();
     
     if(loading){
-        return (
+        return <>(
             <>
                 <Head>
                     <title>Employee Management</title>
@@ -24,11 +25,13 @@ export default function LoadingScreen(){
                 </div>
             </>
            
-        )
+        )</>
     }
 
     if(!user){
         router.push('/auth');
     }
-   
+    return null;
 }
+
+export default LoadingScreen

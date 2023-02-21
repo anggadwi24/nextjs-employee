@@ -2,6 +2,7 @@ import Main from '@/components/Layouts/Main';
 import React, { useState } from 'react'
 import axios from 'axios';
 import Input from '@/components/Input';
+import InputDate from '@/components/Input/date';
 import Label from '@/components/Label';
 import Error from '@/components/Label/error';
 import Select from '@/components/Select';
@@ -29,7 +30,7 @@ const Edit = ({ employee }: Props) => {
     const [pob, setPOB] = useState(employee.pob);
     const [dob, setDOB] = useState(employee.dob);
     const [address, setAddress] = useState(employee.address);
-    const [error, setError] = useState([]);
+    const [error, setError] = useState<any>(null);
     const [success, setSuccess] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ const Edit = ({ employee }: Props) => {
                 setLoading(false)
                 setMessage('');
                 setSuccess(res.data.message)
-                setError([]);
+                setError(null);
 
 
 
@@ -80,24 +81,18 @@ const Edit = ({ employee }: Props) => {
                 <div className='grid gap-1 mb-2 md:grid-cols-1 mx-4'>
                     <div>
                         <Label className=''>Users</Label>
-                        <Select className={error && error.users_id ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setUserID(e.target.value)} value={usersId} >
-                            {users &&
-                                <option value="">Select Users</option>
-                            }
-                            {users && users.length > 0 && users.map((value: any) => {
+                        <Select className={error && error.users_id ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setUserID(e.target.value)} value={usersId}
+                            options={users ?  users.map((value:any) => {
                                 return (
-                                    <option value={value.id} key={value.id}>
-                                        {value.email}
-                                    </option>
+                                {value:value.id,text:value.email}
                                 )
-
-                            })}
-                            {!users &&
-                                <option value="">Loading....</option>
-
-                            }
-                        </Select>
-                        <Error errors={error && error.users_id ? error.users_id : []} />
+                                
+                            }) : [{value:'',text:'Loading'}]}
+                        
+                        />
+                          
+                       
+                        <Error errors={error && error.users_id ? error.users_id : null} />
 
                     </div>
                 </div>
@@ -122,11 +117,11 @@ const Edit = ({ employee }: Props) => {
                     </div>
                     <div>
                         <Label className=''>Gender</Label>
-                        <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setGender(e.target.value)} value={gender} >
-                            <option value="">Select gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </Select>
+                        <Select className={error && error.role ? `bg-red-50 border-red-500 text-red-800` : ``} disabled={loading ? true : false} onChange={(e) => setGender(e.target.value)} value={gender} 
+                            options={[{value:'male',text:'Male'},{value:'female',text:'Female'}]}
+                        />
+                           
+                        
                         <Error errors={error && error.gender ? error.gender : []} />
                     </div>
                     <div>
@@ -136,7 +131,7 @@ const Edit = ({ employee }: Props) => {
                     </div>
                     <div>
                         <Label className=''>Date of Birth</Label>
-                        <Input disabled={loading ? true : false} max={date.getFullYear() + '-' + month + '-' + date.getDate()} type="date" placeholder={"Insert Date of Birth"} className={error && error.dob ? `bg-red-50 border-red-500 text-red-800` : ``} value={dob} onChange={(e) => setDOB(e.target.value)} />
+                        <InputDate disabled={loading ? true : false} max={date.getFullYear() + '-' + month + '-' + date.getDate()} type="date" placeholder={"Insert Date of Birth"} className={error && error.dob ? `bg-red-50 border-red-500 text-red-800` : ``} value={dob} onChange={(e) => setDOB(e.target.value)} />
                         <Error errors={error && error.dob ? error.dob : []} />
                     </div>
 
@@ -175,7 +170,7 @@ export default Edit
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const token = context.req.cookies.token;
-    const email = context.params.email;
+    const email = context.query.email;
     api.defaults.headers.Authorization = `Bearer ${token}`
 
 

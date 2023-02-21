@@ -27,7 +27,7 @@ const Detail = ({ employee }: Props) => {
   const [error, setError] = useState('');
   const [balances, setBalance] = useState(0);
   const [show,setShow] = useState(employee.balance);
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState<any>();
 
   const breadcrumb = [{ name: "Employee", url: "/employee" }, { name: 'Leave Balance', url: `/employee/balance/${email}` }, { name: 'In', url: `/employee/balance/${email}/in` }];
 
@@ -49,9 +49,11 @@ const Detail = ({ employee }: Props) => {
       })
       .catch(err => {
         if (err.response.status) {
-          setError(err.response.data.data);
+         
           setSuccess('');
           setMessage(err.response.data.data);
+          setError(err.response.data.data.balance);
+         
         }
         setLoading(false)
       })
@@ -109,7 +111,7 @@ const Detail = ({ employee }: Props) => {
 
                 <div>
                   <Label className=''>Balance</Label>
-                  <Input disabled={loading ? true : false} type="number" placeholder={"Insert In Balance"} className={error && error.balance ? `bg-red-50 border-red-500 text-red-800` : ``} value={balances} onChange={(e) => setBalance(e.target.value)} />
+                  <Input disabled={loading ? true : false} type="number" placeholder={"Insert In Balance"} className={message && message.balance ? `bg-red-50 border-red-500 text-red-800` : ``} value={balances} onChange={(e) => setBalance(e.target.value)} />
                   <Error errors={message && message.balance ? message.balance : []} />
 
                 </div>
@@ -149,7 +151,7 @@ const Detail = ({ employee }: Props) => {
 export default Detail
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const token = context.req.cookies.token;
-  const email = context.params.email;
+  const email = context.query.email;
   api.defaults.headers.Authorization = `Bearer ${token}`
 
 

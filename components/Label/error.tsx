@@ -1,11 +1,11 @@
 import React from 'react'
 
 type Props = {
-    errors:[],
+    errors:any[],
 }
 
 const Error = ({errors}: Props) => {
-if(errors)
+if(errors){
   return (
     <>
         {errors && errors.length > 0 &&
@@ -18,5 +18,9 @@ if(errors)
     </>
   )
 }
+return null;
+}
+
+
 
 export default Error

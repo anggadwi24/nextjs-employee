@@ -8,7 +8,7 @@ type Props = {};
 
 const Sidebar = (props: Props) => {
   const router = useRouter();
-  const {user} = useAuth();
+  const {user} : any = useAuth();
   const logoutHandler = () => {
 
 
